@@ -2,6 +2,12 @@ namespace Assignment.Infrastructure;
 
 public class WorkItem
 {
+    public WorkItem(string title)
+    {
+        Title = title;
+        Tags = new HashSet<Tag>();
+    }
+
     public int Id { get; set; }
 
     public string Title { get; set; }
@@ -13,10 +19,4 @@ public class WorkItem
     public State State { get; set; }
 
     public ICollection<Tag> Tags { get; set; }
-
-    public WorkItem(string title)
-    {
-        Title = title;
-        Tags = new HashSet<Tag>();
-    }
 }
