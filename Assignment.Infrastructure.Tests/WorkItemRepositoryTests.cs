@@ -1,5 +1,6 @@
 using Assignment.Core;
 using AutoFixture.Xunit2;
+using AutoMapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,12 @@ public class WorkItemRepositoryTests : IDisposable
 
         _context = new KanbanContext(optionsBuilder.Options);
         _context.Database.EnsureCreated();
-        _repository = new WorkItemRepository(_context);
+
+        var mapperConfig = new MapperConfiguration(c => c.AddProfile<MappingProfile>());
+        mapperConfig.AssertConfigurationIsValid();
+        var mapper = mapperConfig.CreateMapper();
+
+        _repository = new WorkItemRepository(_context, mapper);
     }
 
     [Theory]
