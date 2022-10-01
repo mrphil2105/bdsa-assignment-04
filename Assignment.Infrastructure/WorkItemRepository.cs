@@ -1,30 +1,28 @@
+using AutoMapper;
+
 namespace Assignment.Infrastructure;
 
 public class WorkItemRepository : IWorkItemRepository
 {
     private readonly KanbanContext _context;
+    private readonly IMapper _mapper;
 
-    public WorkItemRepository(KanbanContext context)
+    public WorkItemRepository(KanbanContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public (Response Response, int ItemId) Create(WorkItemCreateDTO item)
     {
-        var tags = _context.Tags.Where(t => item.Tags.Contains(t.Name))
+        var entity = _mapper.Map<WorkItem>(item);
+        var existingTags = _context.Tags.Where(t => item.Tags.Contains(t.Name))
             .ToList();
-
-        // Find tags that do not exist, yet, if any.
-        var missingTags = item.Tags.Where(n => !tags.Exists(t => t.Name == n))
-            .Select(n => new Tag(n));
-        // Adding to the missing tags will save them to the database.
-        // This is because so EF Core picks them up on the entity's list.
-        tags.AddRange(missingTags);
-
-        var entity = new WorkItem(item.Title)
-        {
-            AssignedToId = item.AssignedToId, Description = item.Description, Tags = tags
-        };
+        // AutoMapper will create all tags regardless of their existence in the database.
+        // This is a problem, because it will attempt to create tags with the same name.
+        // So we remove the duplicate tags.
+        entity.Tags = entity.Tags.Where(t => existingTags.All(et => et.Name != t.Name))
+            .ToList();
 
         _context.Items.Add(entity);
         _context.SaveChanges();
