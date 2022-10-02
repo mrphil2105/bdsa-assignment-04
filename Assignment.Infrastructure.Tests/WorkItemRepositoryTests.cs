@@ -41,6 +41,21 @@ public class WorkItemRepositoryTests : IDisposable
             .Be(1);
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Create_SetsCreatedAndStateUpdated_WhenGivenDetails(WorkItemCreateDTO dto)
+    {
+        var expected = DateTime.UtcNow;
+
+        var (_, id) = _repository.Create(dto);
+
+        var entity = _context.Items.Find(id);
+        entity!.Created.Should()
+            .BeCloseTo(expected, TimeSpan.FromSeconds(1));
+        entity.StateUpdated.Should()
+            .BeCloseTo(expected, TimeSpan.FromSeconds(1));
+    }
+
     public void Dispose()
     {
         _context.Dispose();
