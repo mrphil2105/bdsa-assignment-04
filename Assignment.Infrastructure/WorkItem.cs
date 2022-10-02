@@ -5,6 +5,8 @@ public class WorkItem
     public WorkItem(string title)
     {
         Title = title;
+        Created = DateTime.UtcNow;
+        StateUpdated = DateTime.UtcNow;
         Tags = new HashSet<Tag>();
     }
 
@@ -18,7 +20,11 @@ public class WorkItem
 
     public string? Description { get; set; }
 
+    public DateTime Created { get; set; }
+
     public State State { get; set; }
+
+    public DateTime StateUpdated { get; set; }
 
     public ICollection<Tag> Tags { get; set; }
 }
