@@ -1,5 +1,4 @@
 using Assignment.Core;
-using AutoFixture.Xunit2;
 using AutoMapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -31,11 +30,9 @@ public class WorkItemRepositoryTests : IDisposable
     }
 
     [Theory]
-    [AutoData]
+    [AutoDbData]
     public void Create_CreatesWorkItem_WhenGivenDetails(WorkItemCreateDTO dto)
     {
-        dto = dto with { AssignedToId = null };
-
         var (response, id) = _repository.Create(dto);
 
         response.Should()
