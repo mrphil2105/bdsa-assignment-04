@@ -82,7 +82,11 @@ public class WorkItemRepository : IWorkItemRepository
 
     public IReadOnlyCollection<WorkItemDTO> ReadByState(State state)
     {
-        throw new NotImplementedException();
+        return _context.Items.Include(i => i.AssignedTo)
+            .Include(i => i.Tags)
+            .Where(i => i.State == state)
+            .Select(i => _mapper.Map<WorkItemDTO>(i))
+            .ToList();
     }
 
     public Response Update(WorkItemUpdateDTO item)
