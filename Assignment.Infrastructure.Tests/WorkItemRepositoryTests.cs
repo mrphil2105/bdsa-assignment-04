@@ -82,6 +82,19 @@ public class WorkItemRepositoryTests : IDisposable
             .BeEquivalentTo(dto, o => o.Excluding(d => d.AssignedToId));
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Read_ReturnsWorkItemDTOs_WhenCreated(List<WorkItemCreateDTO> dtos)
+    {
+        dtos.ForEach(d => _repository.Create(d));
+
+        var result = _repository.Read();
+
+        result.Should()
+            .BeEquivalentTo(dtos, o => o.Excluding(d => d.AssignedToId)
+                .Excluding(d => d.Description));
+    }
+
     public void Dispose()
     {
         _context.Dispose();
