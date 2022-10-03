@@ -43,6 +43,20 @@ public class WorkItemRepositoryTests : IDisposable
 
     [Theory]
     [AutoDbData]
+    public void Create_CreatesWorkItem_WhenGivenDuplicateDetails(WorkItemCreateDTO dto)
+    {
+        _repository.Create(dto);
+
+        var (response, id) = _repository.Create(dto);
+
+        response.Should()
+            .Be(Created);
+        id.Should()
+            .Be(2);
+    }
+
+    [Theory]
+    [AutoDbData]
     public void Create_SetsCreatedAndStateUpdated_WhenGivenDetails(WorkItemCreateDTO dto)
     {
         var expected = DateTime.UtcNow;
