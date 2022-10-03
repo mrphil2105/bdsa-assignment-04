@@ -4,7 +4,7 @@ public interface IWorkItemRepository
 {
     (Response Response, int ItemId) Create(WorkItemCreateDTO item);
 
-    WorkItemDetailsDTO Find(int itemId);
+    WorkItemDetailsDTO? Find(int itemId);
 
     IReadOnlyCollection<WorkItemDTO> Read();
 

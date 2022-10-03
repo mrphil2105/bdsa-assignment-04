@@ -30,7 +30,7 @@ public class WorkItemRepository : IWorkItemRepository
         return (Created, entity.Id);
     }
 
-    public WorkItemDetailsDTO Find(int itemId)
+    public WorkItemDetailsDTO? Find(int itemId)
     {
         throw new NotImplementedException();
     }
