@@ -9,6 +9,7 @@ public class WorkItemRepositoryTests : IDisposable
 {
     private readonly SqliteConnection _connection;
     private readonly KanbanContext _context;
+    private readonly IMapper _mapper;
     private readonly WorkItemRepository _repository;
 
     public WorkItemRepositoryTests()
@@ -24,9 +25,9 @@ public class WorkItemRepositoryTests : IDisposable
 
         var mapperConfig = new MapperConfiguration(c => c.AddProfile<MappingProfile>());
         mapperConfig.AssertConfigurationIsValid();
-        var mapper = mapperConfig.CreateMapper();
+        _mapper = mapperConfig.CreateMapper();
 
-        _repository = new WorkItemRepository(_context, mapper);
+        _repository = new WorkItemRepository(_context, _mapper);
     }
 
     [Theory]
