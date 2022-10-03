@@ -16,5 +16,9 @@ public class MappingProfile : Profile
         CreateMap<WorkItem, WorkItemDetailsDTO>()
             .MapRecordMember(d => d.AssignedToName, i => i.AssignedTo == null ? null : i.AssignedTo.Name)
             .MapRecordMember(d => d.Tags, i => i.Tags.Select(t => t.Name));
+
+        CreateMap<WorkItem, WorkItemDTO>()
+            .MapRecordMember(d => d.AssignedToName, i => i.AssignedTo == null ? null : i.AssignedTo.Name)
+            .MapRecordMember(d => d.Tags, i => i.Tags.Select(t => t.Name));
     }
 }
