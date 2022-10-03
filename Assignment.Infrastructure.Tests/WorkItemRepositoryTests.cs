@@ -144,6 +144,29 @@ public class WorkItemRepositoryTests : IDisposable
                 .Excluding(d => d.Description));
     }
 
+    [Theory]
+    [AutoDbData]
+    public void ReadByUser_ReturnsMatchingWorkItemDTOs_WhenCreated(List<WorkItemCreateDTO> dtos, string username,
+        string email)
+    {
+        _context.Users.Add(new User(username, email));
+        _context.SaveChanges();
+        dtos = dtos.Select((d, i) =>
+            {
+                d = i % 2 == 0 ? d with { AssignedToId = 1 } : d;
+                _repository.Create(d);
+
+                return d;
+            })
+            .ToList();
+
+        var result = _repository.ReadByUser(1);
+
+        result.Should()
+            .BeEquivalentTo(dtos.Where((_, i) => i % 2 == 0), o => o.Excluding(d => d.AssignedToId)
+                .Excluding(d => d.Description));
+    }
+
     public void Dispose()
     {
         _context.Dispose();
