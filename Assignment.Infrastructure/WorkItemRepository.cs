@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using AutoMapper;
 
 namespace Assignment.Infrastructure;
@@ -60,29 +61,17 @@ public class WorkItemRepository : IWorkItemRepository
 
     public IReadOnlyCollection<WorkItemDTO> ReadByTag(string tag)
     {
-        return _context.Items.Include(i => i.AssignedTo)
-            .Include(i => i.Tags)
-            .Where(i => i.Tags.Any(t => t.Name == tag))
-            .Select(i => _mapper.Map<WorkItemDTO>(i))
-            .ToList();
+        return ReadWithFilter(i => i.Tags.Any(t => t.Name == tag));
     }
 
     public IReadOnlyCollection<WorkItemDTO> ReadByUser(int userId)
     {
-        return _context.Items.Include(i => i.AssignedTo)
-            .Include(i => i.Tags)
-            .Where(i => i.AssignedToId == userId)
-            .Select(i => _mapper.Map<WorkItemDTO>(i))
-            .ToList();
+        return ReadWithFilter(i => i.AssignedToId == userId);
     }
 
     public IReadOnlyCollection<WorkItemDTO> ReadByState(State state)
     {
-        return _context.Items.Include(i => i.AssignedTo)
-            .Include(i => i.Tags)
-            .Where(i => i.State == state)
-            .Select(i => _mapper.Map<WorkItemDTO>(i))
-            .ToList();
+        return ReadWithFilter(i => i.State == state);
     }
 
     public Response Update(WorkItemUpdateDTO item)
@@ -93,5 +82,14 @@ public class WorkItemRepository : IWorkItemRepository
     public Response Delete(int itemId)
     {
         throw new NotImplementedException();
+    }
+
+    private IReadOnlyCollection<WorkItemDTO> ReadWithFilter(Expression<Func<WorkItem, bool>> predicate)
+    {
+        return _context.Items.Include(i => i.AssignedTo)
+            .Include(i => i.Tags)
+            .Where(predicate)
+            .Select(i => _mapper.Map<WorkItemDTO>(i))
+            .ToList();
     }
 }
