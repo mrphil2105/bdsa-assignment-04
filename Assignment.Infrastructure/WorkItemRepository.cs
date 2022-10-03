@@ -64,7 +64,11 @@ public class WorkItemRepository : IWorkItemRepository
 
     public IReadOnlyCollection<WorkItemDTO> ReadByTag(string tag)
     {
-        throw new NotImplementedException();
+        return _context.Items.Include(i => i.AssignedTo)
+            .Include(i => i.Tags)
+            .Where(i => i.Tags.Any(t => t.Name == tag))
+            .Select(i => _mapper.Map<WorkItemDTO>(i))
+            .ToList();
     }
 
     public IReadOnlyCollection<WorkItemDTO> ReadByUser(int userId)
