@@ -121,6 +121,29 @@ public class WorkItemRepositoryTests : IDisposable
                 .Excluding(d => d.Description));
     }
 
+    [Theory]
+    [AutoDbData]
+    public void ReadByTag_ReturnsMatchingWorkItemDTOs_WhenCreated(List<WorkItemCreateDTO> dtos, string tag)
+    {
+        dtos.ForEach(d =>
+        {
+            var index = dtos.IndexOf(d);
+
+            if (index % 2 == 0)
+            {
+                d.Tags.Add(tag);
+            }
+
+            _repository.Create(d);
+        });
+
+        var result = _repository.ReadByTag(tag);
+
+        result.Should()
+            .BeEquivalentTo(dtos.Where((_, i) => i % 2 == 0), o => o.Excluding(d => d.AssignedToId)
+                .Excluding(d => d.Description));
+    }
+
     public void Dispose()
     {
         _context.Dispose();
