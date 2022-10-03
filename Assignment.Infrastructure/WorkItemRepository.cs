@@ -41,7 +41,10 @@ public class WorkItemRepository : IWorkItemRepository
 
     public IReadOnlyCollection<WorkItemDTO> Read()
     {
-        throw new NotImplementedException();
+        return _context.Items.Include(i => i.AssignedTo)
+            .Include(i => i.Tags)
+            .Select(i => _mapper.Map<WorkItemDTO>(i))
+            .ToList();
     }
 
     public IReadOnlyCollection<WorkItemDTO> ReadRemoved()
