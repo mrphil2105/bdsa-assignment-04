@@ -36,7 +36,7 @@ public class WorkItemRepositoryTests : IDisposable
         var (response, id) = _repository.Create(dto);
 
         response.Should()
-            .Be(Response.Created);
+            .Be(Created);
         id.Should()
             .Be(1);
     }
