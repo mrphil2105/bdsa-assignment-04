@@ -56,6 +56,18 @@ public class WorkItemRepositoryTests : IDisposable
             .BeCloseTo(expected, TimeSpan.FromSeconds(1));
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Find_ReturnsWorkItemDetailsDTO_WhenGivenId(WorkItemCreateDTO dto)
+    {
+        var (_, id) = _repository.Create(dto);
+
+        var result = _repository.Find(id);
+
+        result.Should()
+            .BeEquivalentTo(dto, o => o.Excluding(d => d.AssignedToId));
+    }
+
     public void Dispose()
     {
         _context.Dispose();
