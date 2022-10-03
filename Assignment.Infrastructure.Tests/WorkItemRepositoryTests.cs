@@ -96,6 +96,31 @@ public class WorkItemRepositoryTests : IDisposable
                 .Excluding(d => d.Description));
     }
 
+    [Theory]
+    [AutoDbData]
+    public void ReadRemoved_ReturnsRemovedWorkItemDTOs_WhenRemoved(List<WorkItemCreateDTO> dtos)
+    {
+        var entities = dtos.Select((d, i) =>
+        {
+            var entity = _mapper.Map<WorkItem>(d);
+
+            if (i % 2 == 0)
+            {
+                entity.State = Removed;
+            }
+
+            return entity;
+        });
+        _context.Items.AddRange(entities);
+        _context.SaveChanges();
+
+        var result = _repository.ReadRemoved();
+
+        result.Should()
+            .BeEquivalentTo(dtos.Where((_, i) => i % 2 == 0), o => o.Excluding(d => d.AssignedToId)
+                .Excluding(d => d.Description));
+    }
+
     public void Dispose()
     {
         _context.Dispose();
