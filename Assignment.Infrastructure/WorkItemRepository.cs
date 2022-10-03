@@ -32,7 +32,11 @@ public class WorkItemRepository : IWorkItemRepository
 
     public WorkItemDetailsDTO? Find(int itemId)
     {
-        throw new NotImplementedException();
+        var entity = _context.Items.Include(i => i.AssignedTo)
+            .Include(i => i.Tags)
+            .SingleOrDefault(i => i.Id == itemId);
+
+        return _mapper.Map<WorkItemDetailsDTO>(entity);
     }
 
     public IReadOnlyCollection<WorkItemDTO> Read()
