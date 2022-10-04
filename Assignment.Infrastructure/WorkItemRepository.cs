@@ -60,7 +60,19 @@ public class WorkItemRepository : IWorkItemRepository
 
     public Response Update(WorkItemUpdateDTO item)
     {
-        throw new NotImplementedException();
+        var entity = FindEntity(item.Id);
+
+        if (entity == null)
+        {
+            return NotFound;
+        }
+
+        _mapper.Map(item, entity);
+        UpdateTags(item.Tags, entity);
+
+        _context.SaveChanges();
+
+        return Updated;
     }
 
     public Response Delete(int itemId)
