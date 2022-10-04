@@ -17,19 +17,7 @@ public class WorkItemRepository : IWorkItemRepository
     public (Response Response, int ItemId) Create(WorkItemCreateDTO item)
     {
         var entity = _mapper.Map<WorkItem>(item);
-        var existingTags = _context.Tags.Where(t => item.Tags.Contains(t.Name));
-
-        // AutoMapper will create all tags regardless of their existence in the database.
-        // This is a problem, because it will attempt to create tags with the same name.
-        // So, make sure the existing tags in the database are used.
-        foreach (var existingTag in existingTags)
-        {
-            var tag = entity.Tags.Single(t => t.Name == existingTag.Name);
-
-            // We can't update the id of 'tag', as EF Core already tracks 'existingTag' with that id.
-            entity.Tags.Remove(tag);
-            entity.Tags.Add(existingTag);
-        }
+        UpdateTags(item.Tags, entity);
 
         _context.Items.Add(entity);
         _context.SaveChanges();
@@ -78,6 +66,23 @@ public class WorkItemRepository : IWorkItemRepository
     public Response Delete(int itemId)
     {
         throw new NotImplementedException();
+    }
+
+    private void UpdateTags(IEnumerable<string> tags, WorkItem entity)
+    {
+        var existingTags = _context.Tags.Where(t => tags.Contains(t.Name));
+
+        // AutoMapper will create all tags regardless of their existence in the database.
+        // This is a problem, because it will attempt to create tags with the same name.
+        // So, make sure the existing tags in the database are used.
+        foreach (var existingTag in existingTags)
+        {
+            var tag = entity.Tags.Single(t => t.Name == existingTag.Name);
+
+            // We can't update the id of 'tag', as EF Core already tracks 'existingTag' with that id.
+            entity.Tags.Remove(tag);
+            entity.Tags.Add(existingTag);
+        }
     }
 
     private WorkItem? FindEntity(int id)
