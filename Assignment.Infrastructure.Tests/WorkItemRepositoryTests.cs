@@ -192,6 +192,22 @@ public class WorkItemRepositoryTests : IDisposable
                 .Excluding(d => d.Description));
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Update_UpdatesWorkItem_WhenGivenDetails(WorkItemCreateDTO createDto, WorkItemUpdateDTO updateDto)
+    {
+        var (_, id) = _repository.Create(createDto);
+        updateDto = updateDto with { Id = id };
+
+        var response = _repository.Update(updateDto);
+
+        response.Should()
+            .Be(Updated);
+        _repository.Find(id)
+            .Should()
+            .BeEquivalentTo(updateDto, o => o.Excluding(d => d.AssignedToId));
+    }
+
     public void Dispose()
     {
         _context.Dispose();
