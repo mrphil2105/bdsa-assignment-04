@@ -20,5 +20,10 @@ public class MappingProfile : Profile
         CreateMap<WorkItem, WorkItemDTO>()
             .MapRecordMember(d => d.AssignedToName, i => i.AssignedTo == null ? null : i.AssignedTo.Name)
             .MapRecordMember(d => d.Tags, i => i.Tags.Select(t => t.Name));
+
+        CreateMap<WorkItemUpdateDTO, WorkItem>()
+            .ForMember(i => i.AssignedTo, o => o.Ignore())
+            .ForMember(i => i.Created, o => o.Ignore())
+            .ForMember(i => i.StateUpdated, o => o.Ignore());
     }
 }
