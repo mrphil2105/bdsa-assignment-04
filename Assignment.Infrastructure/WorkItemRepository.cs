@@ -77,7 +77,28 @@ public class WorkItemRepository : IWorkItemRepository
 
     public Response Delete(int itemId)
     {
-        throw new NotImplementedException();
+        var entity = _context.Items.Find(itemId);
+
+        if (entity == null)
+        {
+            return NotFound;
+        }
+
+        switch (entity.State)
+        {
+            case New:
+                _context.Items.Remove(entity);
+                _context.SaveChanges();
+
+                return Deleted;
+            case Active:
+                entity.State = Removed;
+                _context.SaveChanges();
+
+                return Updated;
+            default:
+                return Conflict;
+        }
     }
 
     private void UpdateTags(IEnumerable<string> tags, WorkItem entity)
