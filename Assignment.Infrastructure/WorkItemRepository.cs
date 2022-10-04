@@ -39,11 +39,7 @@ public class WorkItemRepository : IWorkItemRepository
 
     public WorkItemDetailsDTO? Find(int itemId)
     {
-        var entity = _context.Items.Include(i => i.AssignedTo)
-            .Include(i => i.Tags)
-            .SingleOrDefault(i => i.Id == itemId);
-
-        return _mapper.Map<WorkItemDetailsDTO>(entity);
+        return _mapper.Map<WorkItemDetailsDTO>(FindEntity(itemId));
     }
 
     public IReadOnlyCollection<WorkItemDTO> Read()
@@ -82,6 +78,13 @@ public class WorkItemRepository : IWorkItemRepository
     public Response Delete(int itemId)
     {
         throw new NotImplementedException();
+    }
+
+    private WorkItem? FindEntity(int id)
+    {
+        return _context.Items.Include(i => i.AssignedTo)
+            .Include(i => i.Tags)
+            .SingleOrDefault(i => i.Id == id);
     }
 
     private IReadOnlyCollection<WorkItemDTO> ReadWithFilter(Expression<Func<WorkItem, bool>> predicate)
