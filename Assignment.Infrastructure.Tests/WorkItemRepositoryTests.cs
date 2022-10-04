@@ -208,6 +208,88 @@ public class WorkItemRepositoryTests : IDisposable
             .BeEquivalentTo(updateDto, o => o.Excluding(d => d.AssignedToId));
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Delete_DeletesWorkItem_WhenStateNew(WorkItemCreateDTO dto)
+    {
+        var (_, id) = _repository.Create(dto);
+
+        var response = _repository.Delete(id);
+
+        response.Should()
+            .Be(Deleted);
+        _context.Items.Should()
+            .BeEmpty();
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_MarksWorkItemRemoved_WhenStateActive(WorkItemCreateDTO dto)
+    {
+        var entity = _mapper.Map<WorkItem>(dto);
+        entity.State = Active;
+        _context.Items.Add(entity);
+        _context.SaveChanges();
+
+        var response = _repository.Delete(entity.Id);
+
+        response.Should()
+            .Be(Updated);
+        _context.Items.Should()
+            .ContainSingle(i => i.State == Removed);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_ReturnsConflict_WhenStateResolved(WorkItemCreateDTO dto)
+    {
+        var entity = _mapper.Map<WorkItem>(dto);
+        entity.State = Resolved;
+        _context.Items.Add(entity);
+        _context.SaveChanges();
+
+        var response = _repository.Delete(entity.Id);
+
+        response.Should()
+            .Be(Conflict);
+        _context.Items.Should()
+            .HaveCount(1);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_ReturnsConflict_WhenStateClosed(WorkItemCreateDTO dto)
+    {
+        var entity = _mapper.Map<WorkItem>(dto);
+        entity.State = Closed;
+        _context.Items.Add(entity);
+        _context.SaveChanges();
+
+        var response = _repository.Delete(entity.Id);
+
+        response.Should()
+            .Be(Conflict);
+        _context.Items.Should()
+            .HaveCount(1);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_ReturnsConflict_WhenStateRemoved(WorkItemCreateDTO dto)
+    {
+        var entity = _mapper.Map<WorkItem>(dto);
+        entity.State = Removed;
+        _context.Items.Add(entity);
+        _context.SaveChanges();
+
+        var response = _repository.Delete(entity.Id);
+
+        response.Should()
+            .Be(Conflict);
+        _context.Items.Should()
+            .HaveCount(1);
+    }
+
     public void Dispose()
     {
         _context.Dispose();
