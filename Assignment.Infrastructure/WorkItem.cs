@@ -2,6 +2,8 @@ namespace Assignment.Infrastructure;
 
 public class WorkItem
 {
+    private State _state;
+
     public WorkItem(string title)
     {
         Title = title;
@@ -22,7 +24,15 @@ public class WorkItem
 
     public DateTime Created { get; set; }
 
-    public State State { get; set; }
+    public State State
+    {
+        get => _state;
+        set
+        {
+            _state = value;
+            StateUpdated = DateTime.UtcNow;
+        }
+    }
 
     public DateTime StateUpdated { get; set; }
 
