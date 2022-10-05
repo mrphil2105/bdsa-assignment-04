@@ -85,6 +85,18 @@ public class WorkItemRepositoryTests : IDisposable
 
     [Theory]
     [AutoDbData]
+    public void Create_ReturnsBadRequest_WhenGivenDuplicateTags(WorkItemCreateDTO dto)
+    {
+        dto.Tags.Add(dto.Tags.Last());
+
+        var (response, _) = _repository.Create(dto);
+
+        response.Should()
+            .Be(BadRequest);
+    }
+
+    [Theory]
+    [AutoDbData]
     public void Find_ReturnsWorkItemDetailsDTO_WhenGivenId(WorkItemCreateDTO dto)
     {
         var (_, id) = _repository.Create(dto);
@@ -227,6 +239,21 @@ public class WorkItemRepositoryTests : IDisposable
     {
         var (_, id) = _repository.Create(createDto);
         updateDto = updateDto with { Id = id, AssignedToId = assignedToId };
+
+        var response = _repository.Update(updateDto);
+
+        response.Should()
+            .Be(BadRequest);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Update_ReturnsBadRequest_WhenGivenDuplicateTags(WorkItemCreateDTO createDto,
+        WorkItemUpdateDTO updateDto)
+    {
+        var (_, id) = _repository.Create(createDto);
+        updateDto = updateDto with { Id = id };
+        updateDto.Tags.Add(updateDto.Tags.Last());
 
         var response = _repository.Update(updateDto);
 
