@@ -27,7 +27,11 @@ public class WorkItemRepository : IWorkItemRepository
         }
 
         var entity = _mapper.Map<WorkItem>(item);
-        UpdateTags(item.Tags, entity);
+
+        if (!TryUpdateTags(item.Tags, entity))
+        {
+            return (BadRequest, 0);
+        }
 
         _context.Items.Add(entity);
         _context.SaveChanges();
@@ -88,7 +92,11 @@ public class WorkItemRepository : IWorkItemRepository
         }
 
         _mapper.Map(item, entity);
-        UpdateTags(item.Tags, entity);
+
+        if (!TryUpdateTags(item.Tags, entity))
+        {
+            return BadRequest;
+        }
 
         _context.SaveChanges();
 
@@ -121,8 +129,17 @@ public class WorkItemRepository : IWorkItemRepository
         }
     }
 
-    private void UpdateTags(IEnumerable<string> tags, WorkItem entity)
+    private bool TryUpdateTags(ICollection<string> tags, WorkItem entity)
     {
+        var distinctCount = tags.Distinct()
+            .Count();
+
+        // Check for duplicate tags.
+        if (distinctCount < tags.Count)
+        {
+            return false;
+        }
+
         var existingTags = _context.Tags.Where(t => tags.Contains(t.Name));
 
         // AutoMapper will create all tags regardless of their existence in the database.
@@ -136,6 +153,8 @@ public class WorkItemRepository : IWorkItemRepository
             entity.Tags.Remove(tag);
             entity.Tags.Add(existingTag);
         }
+
+        return true;
     }
 
     private WorkItem? FindEntity(int id)
