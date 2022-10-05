@@ -73,6 +73,18 @@ public class WorkItemRepositoryTests : IDisposable
 
     [Theory]
     [AutoDbData]
+    public void Create_ReturnsBadRequest_WhenGivenInvalidAssignedToId(WorkItemCreateDTO dto, int assignedToId)
+    {
+        dto = dto with { AssignedToId = assignedToId };
+
+        var (response, _) = _repository.Create(dto);
+
+        response.Should()
+            .Be(BadRequest);
+    }
+
+    [Theory]
+    [AutoDbData]
     public void Find_ReturnsWorkItemDetailsDTO_WhenGivenId(WorkItemCreateDTO dto)
     {
         var (_, id) = _repository.Create(dto);
@@ -206,6 +218,20 @@ public class WorkItemRepositoryTests : IDisposable
         _repository.Find(id)
             .Should()
             .BeEquivalentTo(updateDto, o => o.Excluding(d => d.AssignedToId));
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Update_ReturnsBadRequest_WhenGivenInvalidAssignedToId(WorkItemCreateDTO createDto,
+        WorkItemUpdateDTO updateDto, int assignedToId)
+    {
+        var (_, id) = _repository.Create(createDto);
+        updateDto = updateDto with { Id = id, AssignedToId = assignedToId };
+
+        var response = _repository.Update(updateDto);
+
+        response.Should()
+            .Be(BadRequest);
     }
 
     [Theory]
