@@ -16,6 +16,16 @@ public class WorkItemRepository : IWorkItemRepository
 
     public (Response Response, int ItemId) Create(WorkItemCreateDTO item)
     {
+        if (item.AssignedToId.HasValue)
+        {
+            var userExists = _context.Users.Any(u => u.Id == item.AssignedToId);
+
+            if (!userExists)
+            {
+                return (BadRequest, 0);
+            }
+        }
+
         var entity = _mapper.Map<WorkItem>(item);
         UpdateTags(item.Tags, entity);
 
@@ -65,6 +75,16 @@ public class WorkItemRepository : IWorkItemRepository
         if (entity == null)
         {
             return NotFound;
+        }
+
+        if (item.AssignedToId.HasValue && item.AssignedToId != entity.AssignedToId)
+        {
+            var userExists = _context.Users.Any(u => u.Id == item.AssignedToId);
+
+            if (!userExists)
+            {
+                return BadRequest;
+            }
         }
 
         _mapper.Map(item, entity);
