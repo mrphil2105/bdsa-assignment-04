@@ -41,6 +41,18 @@ public class UserRepositoryTests
             .Be(Conflict);
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Find_ReturnsUserDTO_WhenGivenId(UserCreateDTO dto)
+    {
+        var (_, id) = _repository.Create(dto);
+
+        var result = _repository.Find(id);
+
+        result.Should()
+            .BeEquivalentTo(dto);
+    }
+
     public void Dispose()
     {
         _context.Dispose();
