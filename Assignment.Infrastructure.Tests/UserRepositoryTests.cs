@@ -65,6 +65,37 @@ public class UserRepositoryTests
             .BeEquivalentTo(dtos);
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Update_UpdatesUser_WhenGivenDetails(UserCreateDTO createDto, UserUpdateDTO updateDto)
+    {
+        var (_, id) = _repository.Create(createDto);
+        updateDto = updateDto with { Id = id };
+
+        var response = _repository.Update(updateDto);
+
+        response.Should()
+            .Be(Updated);
+        _repository.Find(id)
+            .Should()
+            .BeEquivalentTo(updateDto);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Update_ReturnsConflict_WhenGivenExistingEmail(UserCreateDTO firstDto, UserCreateDTO secondDto,
+        UserUpdateDTO updateDto)
+    {
+        _repository.Create(firstDto);
+        var (_, id) = _repository.Create(secondDto);
+        updateDto = updateDto with { Id = id, Email = firstDto.Email };
+
+        var response = _repository.Update(updateDto);
+
+        response.Should()
+            .Be(Conflict);
+    }
+
     public void Dispose()
     {
         _context.Dispose();
