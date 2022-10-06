@@ -6,7 +6,7 @@ public interface ITagRepository
 
     IReadOnlyCollection<TagDTO> Read();
 
-    TagDTO Find(int tagId);
+    TagDTO? Find(int tagId);
 
     Response Update(TagUpdateDTO tag);
 

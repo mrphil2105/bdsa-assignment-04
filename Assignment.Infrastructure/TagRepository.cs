@@ -35,14 +35,20 @@ public class TagRepository : ITagRepository
             .ToList();
     }
 
-    public TagDTO Find(int tagId)
+    public TagDTO? Find(int tagId)
     {
-        throw new NotImplementedException();
+        return _mapper.Map<TagDTO>(_context.Tags.Find(tagId));
     }
 
     public Response Update(TagUpdateDTO tag)
     {
-        throw new NotImplementedException();
+        var entity = Find(tag.Id);
+        if(entity == null){
+            return NotFound;
+        }
+        _context.SaveChanges();
+        
+        return Updated;
     }
 
     public Response Delete(int tagId, bool force = false)

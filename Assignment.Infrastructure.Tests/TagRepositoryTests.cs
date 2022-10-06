@@ -60,8 +60,39 @@ public class TagRepositoryTests : IDisposable
     [AutoDbData]
     public void Find_ReturnsTagDTO_WhenGivenDetail(TagCreateDTO dto)
     {
-      
-      
+      var (_, id) = _repository.Create(dto);
+
+      var result = _repository.Find(id);
+
+      result.Should()
+            .BeEquivalentTo(dto);
+
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Update_UpdatesTag_WhenGivenDetails(TagCreateDTO dto, TagUpdateDTO updateDto)
+    {
+        var (_, id) = _repository.Create(dto);
+        updateDto = updateDto with {Id = id};
+
+        var response = _repository.Update(updateDto);
+
+        response.Should()
+            .Be(Updated);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Update_RespondNotFound_WhenTagDTONotFound(TagCreateDTO dto, TagUpdateDTO updateDto)
+    {
+        var (_, id) = _repository.Create(dto);
+        updateDto = updateDto with {Id = 2};
+
+        var response = _repository.Update(updateDto);
+
+        response.Should()
+            .Be(NotFound);
     }
 
 
