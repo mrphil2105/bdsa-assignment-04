@@ -65,6 +65,23 @@ public class UserRepository : IUserRepository
 
     public Response Delete(int userId, bool force = false)
     {
-        throw new NotImplementedException();
+        var entity = _context.Users.Find(userId);
+
+        if (entity == null)
+        {
+            return NotFound;
+        }
+
+        var hasItems = _context.Items.Any(i => i.AssignedToId == userId);
+
+        if (hasItems && !force)
+        {
+            return Conflict;
+        }
+
+        _context.Users.Remove(entity);
+        _context.SaveChanges();
+
+        return Deleted;
     }
 }
