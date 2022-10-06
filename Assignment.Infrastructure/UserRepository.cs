@@ -37,7 +37,8 @@ public class UserRepository : IUserRepository
 
     public IReadOnlyCollection<UserDTO> Read()
     {
-        throw new NotImplementedException();
+        return _context.Users.Select(i => _mapper.Map<UserDTO>(i))
+            .ToList();
     }
 
     public Response Update(UserUpdateDTO user)
