@@ -4,7 +4,7 @@ public interface IUserRepository
 {
     (Response Response, int UserId) Create(UserCreateDTO user);
 
-    UserDTO Find(int userId);
+    UserDTO? Find(int userId);
 
     IReadOnlyCollection<UserDTO> Read();
 

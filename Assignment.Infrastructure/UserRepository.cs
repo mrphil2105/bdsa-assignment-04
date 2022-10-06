@@ -30,7 +30,7 @@ public class UserRepository : IUserRepository
         return (Created, entity.Id);
     }
 
-    public UserDTO Find(int userId)
+    public UserDTO? Find(int userId)
     {
         throw new NotImplementedException();
     }
