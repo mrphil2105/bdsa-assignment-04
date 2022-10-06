@@ -1,7 +1,6 @@
 using Assignment.Core;
 using AutoMapper;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 
 namespace Assignment.Infrastructure.Tests;
 
@@ -13,7 +12,7 @@ public class TagRepositoryTests : IDisposable
     private readonly TagRepository _repository;
 
     public TagRepositoryTests()
-    { 
+    {
         (_connection, _context, _mapper, _repository) = TestsHelper.CreateTestObjects<TagRepository>();
     }
 
@@ -33,7 +32,7 @@ public class TagRepositoryTests : IDisposable
     [AutoDbData]
     public void Create_ReturnsConflict_WhenGivenExistingName(TagCreateDTO dto, TagCreateDTO secondDto)
     {
-        secondDto = secondDto with {Name = dto.Name};
+        secondDto = secondDto with { Name = dto.Name };
         _repository.Create(dto);
 
         var (response, id) = _repository.Create(secondDto);
@@ -48,11 +47,11 @@ public class TagRepositoryTests : IDisposable
     [AutoDbData]
     public void Read_ReturnsTagDTOs_WhenCalled(List<TagCreateDTO> dtos)
     {
-       dtos.ForEach(d => _repository.Create(d));
+        dtos.ForEach(d => _repository.Create(d));
 
-       var result = _repository.Read();
+        var result = _repository.Read();
 
-       result.Should()
+        result.Should()
             .BeEquivalentTo(dtos);
     }
 
@@ -60,13 +59,12 @@ public class TagRepositoryTests : IDisposable
     [AutoDbData]
     public void Find_ReturnsTagDTO_WhenGivenDetail(TagCreateDTO dto)
     {
-      var (_, id) = _repository.Create(dto);
+        var (_, id) = _repository.Create(dto);
 
-      var result = _repository.Find(id);
+        var result = _repository.Find(id);
 
-      result.Should()
+        result.Should()
             .BeEquivalentTo(dto);
-
     }
 
     [Theory]
@@ -74,7 +72,7 @@ public class TagRepositoryTests : IDisposable
     public void Update_UpdatesTag_WhenGivenDetails(TagCreateDTO dto, TagUpdateDTO updateDto)
     {
         var (_, id) = _repository.Create(dto);
-        updateDto = updateDto with {Id = id};
+        updateDto = updateDto with { Id = id };
 
         var response = _repository.Update(updateDto);
 
@@ -84,11 +82,12 @@ public class TagRepositoryTests : IDisposable
 
     [Theory]
     [AutoDbData]
-    public void Update_ReturnConflict_WhenTagDTOAlreadyExist(TagCreateDTO firstDto, TagCreateDTO secondDto, TagUpdateDTO updateDto)
+    public void Update_ReturnConflict_WhenTagDTOAlreadyExist(TagCreateDTO firstDto, TagCreateDTO secondDto,
+        TagUpdateDTO updateDto)
     {
         _repository.Create(firstDto);
         var (_, id) = _repository.Create(secondDto);
-        updateDto = updateDto with {Id = id, Name = firstDto.Name};
+        updateDto = updateDto with { Id = id, Name = firstDto.Name };
 
         var response = _repository.Update(updateDto);
 
@@ -101,7 +100,7 @@ public class TagRepositoryTests : IDisposable
     public void Update_ReturnNotFound_WhenTagDTONotFound(TagCreateDTO dto, TagUpdateDTO updateDto)
     {
         var (_, id) = _repository.Create(dto);
-        updateDto = updateDto with {Id = 2};
+        updateDto = updateDto with { Id = 2 };
 
         var response = _repository.Update(updateDto);
 
@@ -114,7 +113,7 @@ public class TagRepositoryTests : IDisposable
     public void Delete_ReturnDeleted_WhenUsingForce(TagCreateDTO dto)
     {
         var (_, id) = _repository.Create(dto);
-        
+
         var response = _repository.Delete(id, true);
 
         response.Should()
@@ -134,7 +133,7 @@ public class TagRepositoryTests : IDisposable
     [Theory]
     [AutoDbData]
     public void Delete_ReturnsConflict_WhenNotUsingForce(TagCreateDTO dto, WorkItemCreateDTO workDto)
-    {   
+    {
         var tag = _mapper.Map<Tag>(dto);
         var workItem = _mapper.Map<WorkItem>(workDto);
         tag.WorkItems.Add(workItem);
@@ -146,11 +145,6 @@ public class TagRepositoryTests : IDisposable
         response.Should()
             .Be(Conflict);
     }
-
-
-
-
-
 
     public void Dispose()
     {

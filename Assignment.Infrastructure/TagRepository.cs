@@ -2,7 +2,6 @@ using AutoMapper;
 
 namespace Assignment.Infrastructure;
 
-
 public class TagRepository : ITagRepository
 {
     private readonly KanbanContext _context;
@@ -16,8 +15,9 @@ public class TagRepository : ITagRepository
 
     public (Response Response, int TagId) Create(TagCreateDTO tag)
     {
-        var tagExist = _context.Tags.Any(t => t.Name == tag.Name);
-        if(tagExist)
+        var tagExists = _context.Tags.Any(t => t.Name == tag.Name);
+
+        if (tagExists)
         {
             return (Conflict, 0);
         }
@@ -26,6 +26,7 @@ public class TagRepository : ITagRepository
 
         _context.Tags.Add(entity);
         _context.SaveChanges();
+
         return (Created, entity.Id);
     }
 
@@ -43,21 +44,22 @@ public class TagRepository : ITagRepository
     public Response Update(TagUpdateDTO tag)
     {
         var entity = _context.Tags.Find(tag.Id);
-        if(entity == null)
+
+        if (entity == null)
         {
             return NotFound;
         }
 
         var tagExist = _context.Tags.Any(t => t.Id != tag.Id && t.Name == tag.Name);
-        if(tagExist)
+
+        if (tagExist)
         {
             return Conflict;
-        }       
+        }
 
         _mapper.Map(tag, entity);
-
         _context.SaveChanges();
-        
+
         return Updated;
     }
 
@@ -65,19 +67,20 @@ public class TagRepository : ITagRepository
     {
         var entity = _context.Tags.Include(t => t.WorkItems)
             .SingleOrDefault(t => t.Id == tagId);
-        
+
         if (entity == null)
         {
             return NotFound;
         }
 
-        if(!entity.WorkItems.Any() || force)
-        { 
-            _context.Tags.Remove(entity);
-            _context.SaveChanges();
-            return Deleted;
-        } 
+        if (entity.WorkItems.Any() && !force)
+        {
+            return Conflict;
+        }
 
-        return Conflict;
+        _context.Tags.Remove(entity);
+        _context.SaveChanges();
+
+        return Deleted;
     }
 }

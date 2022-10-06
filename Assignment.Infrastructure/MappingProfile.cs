@@ -34,6 +34,5 @@ public class MappingProfile : Profile
 
         CreateMap<TagUpdateDTO, Tag>()
             .ForMember(t => t.WorkItems, o => o.Ignore());
-            
     }
 }
