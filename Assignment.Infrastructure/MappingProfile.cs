@@ -29,5 +29,7 @@ public class MappingProfile : Profile
         CreateMap<UserCreateDTO, User>()
             .ForMember(u => u.Id, o => o.Ignore())
             .ForMember(u => u.Items, o => o.Ignore());
+
+        CreateMap<User, UserDTO>();
     }
 }
