@@ -139,6 +139,7 @@ public class TagRepositoryTests : IDisposable
     [AutoDbData]
     public void Delete_ReturnsConflict_WhenHasItems(TagCreateDTO dto, WorkItemCreateDTO workDto)
     {
+        workDto.Tags.Clear();
         var tag = _mapper.Map<Tag>(dto);
         var item = _mapper.Map<WorkItem>(workDto);
         tag.WorkItems.Add(item);
@@ -157,6 +158,7 @@ public class TagRepositoryTests : IDisposable
     [AutoDbData]
     public void Delete_DeletesTag_WhenHasItemsAndForce(TagCreateDTO dto, WorkItemCreateDTO workDto)
     {
+        workDto.Tags.Clear();
         var tag = _mapper.Map<Tag>(dto);
         var item = _mapper.Map<WorkItem>(workDto);
         tag.WorkItems.Add(item);
