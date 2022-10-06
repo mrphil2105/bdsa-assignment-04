@@ -53,6 +53,18 @@ public class UserRepositoryTests
             .BeEquivalentTo(dto);
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Read_ReturnsUserDTOs_WhenCreated(List<UserCreateDTO> dtos)
+    {
+        dtos.ForEach(d => _repository.Create(d));
+
+        var result = _repository.Read();
+
+        result.Should()
+            .BeEquivalentTo(dtos);
+    }
+
     public void Dispose()
     {
         _context.Dispose();
