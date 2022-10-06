@@ -25,5 +25,14 @@ public class MappingProfile : Profile
             .ForMember(i => i.AssignedTo, o => o.Ignore())
             .ForMember(i => i.Created, o => o.Ignore())
             .ForMember(i => i.StateUpdated, o => o.Ignore());
+
+        CreateMap<TagCreateDTO, Tag>()
+            .ForMember(t => t.Id, o => o.Ignore())
+            .ForMember(t => t.WorkItems, o => o.Ignore());
+
+        CreateMap<Tag, TagDTO>();
+
+        CreateMap<TagUpdateDTO, Tag>()
+            .ForMember(t => t.WorkItems, o => o.Ignore());
     }
 }
