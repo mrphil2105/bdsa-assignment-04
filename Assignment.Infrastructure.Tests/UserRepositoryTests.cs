@@ -96,6 +96,56 @@ public class UserRepositoryTests
             .Be(Conflict);
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Delete_DeletesUser_WhenHasNoItems(UserCreateDTO dto)
+    {
+        var (_, id) = _repository.Create(dto);
+
+        var response = _repository.Delete(id);
+
+        response.Should()
+            .Be(Deleted);
+        _context.Users.Should()
+            .BeEmpty();
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_ReturnsConflict_WhenHasItems(UserCreateDTO userDto, WorkItemCreateDTO itemDto)
+    {
+        var user = _mapper.Map<User>(userDto);
+        var item = _mapper.Map<WorkItem>(itemDto);
+        user.Items.Add(item);
+        _context.Users.Add(user);
+        _context.SaveChanges();
+
+        var response = _repository.Delete(user.Id);
+
+        response.Should()
+            .Be(Conflict);
+        _context.Users.Should()
+            .HaveCount(1);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_DeletesUser_WhenHasItemsAndForce(UserCreateDTO userDto, WorkItemCreateDTO itemDto)
+    {
+        var user = _mapper.Map<User>(userDto);
+        var item = _mapper.Map<WorkItem>(itemDto);
+        user.Items.Add(item);
+        _context.Users.Add(user);
+        _context.SaveChanges();
+
+        var response = _repository.Delete(user.Id, true);
+
+        response.Should()
+            .Be(Deleted);
+        _context.Users.Should()
+            .BeEmpty();
+    }
+
     public void Dispose()
     {
         _context.Dispose();
