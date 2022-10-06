@@ -6,8 +6,7 @@ namespace Assignment.Infrastructure.Tests;
 
 public static class TestsHelper
 {
-    public static (SqliteConnection Connection, KanbanContext Context, IMapper Mapper, TRepository)
-        CreateTestObjects<TRepository>()
+    public static (SqliteConnection, KanbanContext, IMapper, TRepository) CreateTestObjects<TRepository>()
     {
         var connection = new SqliteConnection("Data Source=:memory:");
         connection.Open();
