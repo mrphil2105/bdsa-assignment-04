@@ -32,7 +32,7 @@ public class UserRepository : IUserRepository
 
     public UserDTO? Find(int userId)
     {
-        throw new NotImplementedException();
+        return _mapper.Map<UserDTO>(_context.Users.Find(userId));
     }
 
     public IReadOnlyCollection<UserDTO> Read()
