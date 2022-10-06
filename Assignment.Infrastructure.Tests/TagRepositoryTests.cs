@@ -84,7 +84,21 @@ public class TagRepositoryTests : IDisposable
 
     [Theory]
     [AutoDbData]
-    public void Update_RespondNotFound_WhenTagDTONotFound(TagCreateDTO dto, TagUpdateDTO updateDto)
+    public void Update_ReturnConflict_WhenTagDTOAlreadyExist(TagCreateDTO firstDto, TagCreateDTO secondDto, TagUpdateDTO updateDto)
+    {
+        _repository.Create(firstDto);
+        var (_, id) = _repository.Create(secondDto);
+        updateDto = updateDto with {Id = id, Name = firstDto.Name};
+
+        var response = _repository.Update(updateDto);
+
+        response.Should()
+            .Be(Conflict);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Update_ReturnNotFound_WhenTagDTONotFound(TagCreateDTO dto, TagUpdateDTO updateDto)
     {
         var (_, id) = _repository.Create(dto);
         updateDto = updateDto with {Id = 2};
@@ -93,6 +107,44 @@ public class TagRepositoryTests : IDisposable
 
         response.Should()
             .Be(NotFound);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_ReturnDeleted_WhenUsingForce(TagCreateDTO dto)
+    {
+        var (_, id) = _repository.Create(dto);
+        
+        var response = _repository.Delete(id, true);
+
+        response.Should()
+            .Be(Deleted);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_ReturnsNotFound_WhenTagDTONotFound(int id)
+    {
+        var response = _repository.Delete(id);
+
+        response.Should()
+            .Be(NotFound);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_ReturnsConflict_WhenNotUsingForce(TagCreateDTO dto, WorkItemCreateDTO workDto)
+    {   
+        var tag = _mapper.Map<Tag>(dto);
+        var workItem = _mapper.Map<WorkItem>(workDto);
+        tag.WorkItems.Add(workItem);
+        _context.Tags.Add(tag);
+        _context.SaveChanges();
+
+        var response = _repository.Delete(tag.Id);
+
+        response.Should()
+            .Be(Conflict);
     }
 
 

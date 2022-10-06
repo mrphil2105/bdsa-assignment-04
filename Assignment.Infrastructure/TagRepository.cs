@@ -42,10 +42,20 @@ public class TagRepository : ITagRepository
 
     public Response Update(TagUpdateDTO tag)
     {
-        var entity = Find(tag.Id);
-        if(entity == null){
+        var entity = _context.Tags.Find(tag.Id);
+        if(entity == null)
+        {
             return NotFound;
         }
+
+        var tagExist = _context.Tags.Any(t => t.Id != tag.Id && t.Name == tag.Name);
+        if(tagExist)
+        {
+            return Conflict;
+        }       
+
+        _mapper.Map(tag, entity);
+
         _context.SaveChanges();
         
         return Updated;
@@ -53,6 +63,21 @@ public class TagRepository : ITagRepository
 
     public Response Delete(int tagId, bool force = false)
     {
-        throw new NotImplementedException();
+        var entity = _context.Tags.Include(t => t.WorkItems)
+            .SingleOrDefault(t => t.Id == tagId);
+        
+        if (entity == null)
+        {
+            return NotFound;
+        }
+
+        if(!entity.WorkItems.Any() || force)
+        { 
+            _context.Tags.Remove(entity);
+            _context.SaveChanges();
+            return Deleted;
+        } 
+
+        return Conflict;
     }
 }
