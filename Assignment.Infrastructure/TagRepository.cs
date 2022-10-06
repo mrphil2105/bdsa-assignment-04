@@ -65,15 +65,16 @@ public class TagRepository : ITagRepository
 
     public Response Delete(int tagId, bool force = false)
     {
-        var entity = _context.Tags.Include(t => t.WorkItems)
-            .SingleOrDefault(t => t.Id == tagId);
+        var entity = _context.Tags.SingleOrDefault(t => t.Id == tagId);
 
         if (entity == null)
         {
             return NotFound;
         }
 
-        if (entity.WorkItems.Any() && !force)
+        var hasItems = _context.Items.Any(i => i.Tags.Any(t => t.Id == tagId));
+
+        if (hasItems && !force)
         {
             return Conflict;
         }
