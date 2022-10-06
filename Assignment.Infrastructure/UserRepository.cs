@@ -43,7 +43,24 @@ public class UserRepository : IUserRepository
 
     public Response Update(UserUpdateDTO user)
     {
-        throw new NotImplementedException();
+        var entity = _context.Users.Find(user.Id);
+
+        if (entity == null)
+        {
+            return NotFound;
+        }
+
+        var emailExists = _context.Users.Any(u => u.Id != user.Id && u.Email == user.Email);
+
+        if (emailExists)
+        {
+            return Conflict;
+        }
+
+        _mapper.Map(user, entity);
+        _context.SaveChanges();
+
+        return Updated;
     }
 
     public Response Delete(int userId, bool force = false)
