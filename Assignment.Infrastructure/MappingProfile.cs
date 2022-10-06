@@ -25,5 +25,9 @@ public class MappingProfile : Profile
             .ForMember(i => i.AssignedTo, o => o.Ignore())
             .ForMember(i => i.Created, o => o.Ignore())
             .ForMember(i => i.StateUpdated, o => o.Ignore());
+
+        CreateMap<UserCreateDTO, User>()
+            .ForMember(u => u.Id, o => o.Ignore())
+            .ForMember(u => u.Items, o => o.Ignore());
     }
 }
