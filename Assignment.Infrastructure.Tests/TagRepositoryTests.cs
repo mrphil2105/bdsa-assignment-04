@@ -29,6 +29,42 @@ public class TagRepositoryTests : IDisposable
             .Be(1);
     }
 
+    [Theory]
+    [AutoDbData]
+    public void Create_ReturnsConflict_WhenGivenExistingName(TagCreateDTO dto, TagCreateDTO secondDto)
+    {
+        secondDto = secondDto with {Name = dto.Name};
+        _repository.Create(dto);
+
+        var (response, id) = _repository.Create(secondDto);
+
+        response.Should()
+            .Be(Conflict);
+        id.Should()
+            .Be(0);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Read_ReturnsTagDTOs_WhenCalled(List<TagCreateDTO> dtos)
+    {
+       dtos.ForEach(d => _repository.Create(d));
+
+       var result = _repository.Read();
+
+       result.Should()
+            .BeEquivalentTo(dtos);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Find_ReturnsTagDTO_WhenGivenDetail(TagCreateDTO dto)
+    {
+      
+      
+    }
+
+
 
 
 

@@ -31,7 +31,8 @@ public class TagRepository : ITagRepository
 
     public IReadOnlyCollection<TagDTO> Read()
     {
-        throw new NotImplementedException();
+        return _context.Tags.Select(i => _mapper.Map<TagDTO>(i))
+            .ToList();
     }
 
     public TagDTO Find(int tagId)

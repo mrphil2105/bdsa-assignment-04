@@ -29,5 +29,8 @@ public class MappingProfile : Profile
         CreateMap<TagCreateDTO, Tag>()
             .ForMember(t => t.Id, o => o.Ignore())
             .ForMember(t => t.WorkItems, o => o.Ignore());
+
+        CreateMap<Tag, TagDTO>();
+            
     }
 }
