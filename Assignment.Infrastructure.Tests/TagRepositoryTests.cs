@@ -76,13 +76,16 @@ public class TagRepositoryTests : IDisposable
 
         var response = _repository.Update(updateDto);
 
+        _repository.Find(id)
+            .Should()
+            .BeEquivalentTo(updateDto);
         response.Should()
             .Be(Updated);
     }
 
     [Theory]
     [AutoDbData]
-    public void Update_ReturnConflict_WhenTagDTOAlreadyExist(TagCreateDTO firstDto, TagCreateDTO secondDto,
+    public void Update_ReturnsConflict_WhenGivenExistingName(TagCreateDTO firstDto, TagCreateDTO secondDto,
         TagUpdateDTO updateDto)
     {
         _repository.Create(firstDto);
@@ -99,7 +102,7 @@ public class TagRepositoryTests : IDisposable
     [AutoDbData]
     public void Update_ReturnNotFound_WhenTagDTONotFound(TagCreateDTO dto, TagUpdateDTO updateDto)
     {
-        var (_, id) = _repository.Create(dto);
+        _repository.Create(dto);
         updateDto = updateDto with { Id = 2 };
 
         var response = _repository.Update(updateDto);
@@ -110,14 +113,16 @@ public class TagRepositoryTests : IDisposable
 
     [Theory]
     [AutoDbData]
-    public void Delete_ReturnDeleted_WhenUsingForce(TagCreateDTO dto)
+    public void Delete_DeletesTag_WhenHasNoItems(TagCreateDTO dto)
     {
         var (_, id) = _repository.Create(dto);
 
-        var response = _repository.Delete(id, true);
+        var response = _repository.Delete(id);
 
         response.Should()
             .Be(Deleted);
+        _context.Tags.Should()
+            .BeEmpty();
     }
 
     [Theory]
@@ -132,11 +137,11 @@ public class TagRepositoryTests : IDisposable
 
     [Theory]
     [AutoDbData]
-    public void Delete_ReturnsConflict_WhenNotUsingForce(TagCreateDTO dto, WorkItemCreateDTO workDto)
+    public void Delete_ReturnsConflict_WhenHasItems(TagCreateDTO dto, WorkItemCreateDTO workDto)
     {
         var tag = _mapper.Map<Tag>(dto);
-        var workItem = _mapper.Map<WorkItem>(workDto);
-        tag.WorkItems.Add(workItem);
+        var item = _mapper.Map<WorkItem>(workDto);
+        tag.WorkItems.Add(item);
         _context.Tags.Add(tag);
         _context.SaveChanges();
 
@@ -144,6 +149,26 @@ public class TagRepositoryTests : IDisposable
 
         response.Should()
             .Be(Conflict);
+        _context.Tags.Should()
+            .HaveCount(1);
+    }
+
+    [Theory]
+    [AutoDbData]
+    public void Delete_DeletesTag_WhenHasItemsAndForce(TagCreateDTO dto, WorkItemCreateDTO workDto)
+    {
+        var tag = _mapper.Map<Tag>(dto);
+        var item = _mapper.Map<WorkItem>(workDto);
+        tag.WorkItems.Add(item);
+        _context.Tags.Add(tag);
+        _context.SaveChanges();
+
+        var response = _repository.Delete(tag.Id, true);
+
+        response.Should()
+            .Be(Deleted);
+        _context.Tags.Should()
+            .BeEmpty();
     }
 
     public void Dispose()
