@@ -1,7 +1,6 @@
 using Assignment.Core;
 using AutoMapper;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 
 namespace Assignment.Infrastructure.Tests;
 
@@ -14,20 +13,7 @@ public class WorkItemRepositoryTests : IDisposable
 
     public WorkItemRepositoryTests()
     {
-        _connection = new SqliteConnection("Data Source=:memory:");
-        _connection.Open();
-
-        var optionsBuilder = new DbContextOptionsBuilder<KanbanContext>();
-        optionsBuilder.UseSqlite(_connection);
-
-        _context = new KanbanContext(optionsBuilder.Options);
-        _context.Database.EnsureCreated();
-
-        var mapperConfig = new MapperConfiguration(c => c.AddProfile<MappingProfile>());
-        mapperConfig.AssertConfigurationIsValid();
-        _mapper = mapperConfig.CreateMapper();
-
-        _repository = new WorkItemRepository(_context, _mapper);
+        (_connection, _context, _mapper, _repository) = TestsHelper.CreateTestObjects<WorkItemRepository>();
     }
 
     [Theory]
